@@ -13,30 +13,86 @@ type Window struct {
 	window        *glfw.Window
 	viewInitiated bool
 	widgets       []*Widget
+	moverWidget   *Widget
 }
 
 func CreateWindow(width float64, height float64, title string) (*Window, error) {
-	w, err := glfw.CreateWindow(int(width), int(height), title, nil, nil)
+	glW, err := glfw.CreateWindow(int(width), int(height), title, nil, nil)
 
 	if err != nil {
 		return nil, err
 	}
 
-	w.SetFramebufferSizeCallback(updateWindowView)
+	glW.SetFramebufferSizeCallback(updateWindowView)
 
-	w.MakeContextCurrent()
+	glW.MakeContextCurrent()
 
 	if err := gl.Init(); err != nil {
 		panic(err)
 	}
 
-	window := &Window{
+	w := &Window{
 		rect:   Rect(0, 0, float64(width), float64(height)),
 		title:  title,
-		window: w,
+		window: glW,
 	}
 
-	return window, nil
+	glW.SetFramebufferSizeCallback(func(_ *glfw.Window, width int, height int) {
+		if w.viewInitiated {
+			// pop 2
+			gl.PopMatrix()
+
+			// pop 1
+			gl.PopMatrix()
+		}
+
+		// push 1
+		gl.MatrixMode(gl.PROJECTION)
+		gl.LoadIdentity()
+		gl.Viewport(0, 0, int32(width), int32(height))
+		gl.PushMatrix()
+
+		// push 2
+		gl.MatrixMode(gl.MODELVIEW)
+		gl.LoadIdentity()
+		gl.Ortho(0, float64(width), float64(height), 0, -1, 1)
+		gl.PushMatrix()
+
+		if !w.viewInitiated {
+			draw(w)
+		}
+
+		w.viewInitiated = true
+	})
+
+	glW.SetCursorPosCallback(func(_ *glfw.Window, x float64, y float64) {
+		var moverWidget *Widget
+
+		for _, widget := range w.widgets {
+			if widget.rect.Contains(x, y) {
+				moverWidget = widget
+			}
+		}
+
+		if moverWidget != w.moverWidget {
+			if w.moverWidget != nil {
+				w.moverWidget.handleMleave()
+			}
+
+			w.moverWidget = moverWidget
+			if moverWidget != nil {
+				moverWidget.handleMenter()
+			}
+		}
+
+		if moverWidget != nil {
+			widgetX, widgetY := moverWidget.GetPos()
+
+			moverWidget.handleMover(x-widgetX, y-widgetY)
+		}
+	})
+
+	return w, nil
 }
 
 func (w *Window) Run() {
@@ -75,29 +131,4 @@ func draw(w *Window) {
 }
 
 func updateWindowView(w *glfw.Window, width int, height int) {
-	// if w.viewInitiated {
-	// pop 2
-	gl.PopMatrix()
-
-	// pop 1
-	gl.PopMatrix()
-	// }
-
-	// push 1
-	gl.MatrixMode(gl.PROJECTION)
-	gl.LoadIdentity()
-	gl.Viewport(0, 0, int32(width), int32(height))
-	gl.PushMatrix()
-
-	// push 2
-	gl.MatrixMode(gl.MODELVIEW)
-	gl.LoadIdentity()
-	gl.Ortho(0, float64(width), float64(height), 0, -1, 1)
-	gl.PushMatrix()
-
-	// if !w.viewInitiated {
-	// 	draw(w)
-	// }
-
-	// w.viewInitiated = true
 }

@@ -1,5 +1,7 @@
 package goi
 
 type Style struct {
-	BackgroundColor Color
+	BackgroundColor *Color
 }
+
+var emptyStyle = Style{}

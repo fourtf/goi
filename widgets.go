@@ -1,21 +1,13 @@
 package goi
 
-func NewWidget() *Widget {
-	w := &Widget{
-		rect:          Rect(0, 0, 60, 20),
-		style:         &Style{},
-		moverStyle:    &Style{},
-		mdownStyle:    &Style{},
-		selectedStyle: &Style{},
-	}
-
-	return w
-}
-
 func NewButton() *Widget {
 	w := NewWidget()
 
 	w.style.BackgroundColor = ParseColor("#F00")
+	w.moverStyle.BackgroundColor = ParseColor("#0F0")
+	w.mdownStyle.BackgroundColor = ParseColor("#00F")
+
+	w.updateStyle()
 
 	return w
 }

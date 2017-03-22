@@ -10,7 +10,7 @@ func newContext() *Context {
 	return &Context{}
 }
 
-func (ctx *Context) FillRect(r Rectangle, c Color) {
+func (ctx *Context) FillRect(r Rectangle, c *Color) {
 	gl.Begin(gl.TRIANGLES)
 
 	gl.Color3ub(c.R, c.G, c.B)

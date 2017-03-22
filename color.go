@@ -1,7 +1,6 @@
 package goi
 
 import "strings"
-import "fmt"
 
 type Color struct {
 	R byte
@@ -10,8 +9,8 @@ type Color struct {
 	A byte
 }
 
-func Clr(R byte, G byte, B byte, A byte) Color {
-	return Color{
+func Clr(R byte, G byte, B byte, A byte) *Color {
+	return &Color{
 		R: R,
 		G: G,
 		B: B,
@@ -19,11 +18,11 @@ func Clr(R byte, G byte, B byte, A byte) Color {
 	}
 }
 
-func Transparent() Color {
+func Transparent() *Color {
 	return Clr(0, 0, 0, 0)
 }
 
-func ParseColor(s string) Color {
+func ParseColor(s string) *Color {
 	if strings.HasPrefix(s, "#") {
 		if len(s) == 4 {
 			return Clr(getColorBytes(s[1], s[1]), getColorBytes(s[2], s[2]),
@@ -40,11 +39,10 @@ func ParseColor(s string) Color {
 		}
 	}
 
-	return Transparent()
+	return nil
 }
 
 func getColorByte(c byte) byte {
-	fmt.Printf(":%v\n", c)
 	if c >= '0' && c <= '9' {
 		return c - '0'
 	} else if c >= 'a' && c <= 'f' {
@@ -56,6 +54,5 @@ func getColorByte(c byte) byte {
 }
 
 func getColorBytes(c1 byte, c2 byte) byte {
-	fmt.Printf("%v %v\n", c1, c2)
 	return (getColorByte(c1) << 4) + getColorByte(c2)
 }
