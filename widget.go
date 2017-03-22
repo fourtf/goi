@@ -47,11 +47,17 @@ func (w *Widget) updateStyle() {
 		return
 	}
 
-	x := *s1
-	c := &x
+	tmp := *s1
+	c := &tmp
 
 	if s2.BackgroundColor != nil {
 		c.BackgroundColor = s2.BackgroundColor
+	}
+	if s2.BorderColor != nil {
+		c.BorderColor = s2.BorderColor
+	}
+	if s2.BorderWidth >= 0 {
+		c.BorderWidth = s2.BorderWidth
 	}
 
 	w.currentStyle = c
@@ -60,6 +66,7 @@ func (w *Widget) updateStyle() {
 func (w *Widget) Draw(c *Context) {
 	if w.currentStyle.BackgroundColor != nil {
 		c.FillRect(w.rect, w.currentStyle.BackgroundColor)
+		c.BorderRect(w.rect, w.currentStyle.BorderColor, w.currentStyle.BorderWidth)
 	}
 }
 
@@ -88,13 +95,17 @@ func (w *Widget) handleMover(x float64, y float64) {
 	}
 }
 
-func (w *Widget) handleMleave() {
+func (w *Widget) handleMenter() {
 	fmt.Println("enter")
+
+	w.mover = true
 	w.updateStyle()
 }
 
-func (w *Widget) handleMenter() {
+func (w *Widget) handleMleave() {
 	fmt.Println("leave")
+
+	w.mover = false
 	w.updateStyle()
 }
 
